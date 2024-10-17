@@ -10,7 +10,8 @@ import SymptomChecker from './SymptomChecker'; // Import your new screens
 import TestHistory from './TestHistory';
 import HeartTips from './HeartTips';
 import RiskAssessment from './RiskAssessment';
-
+import LoginScreen from './LoginScreen';
+import SignupScreen from './SignupScreen';
 const Stack = createNativeStackNavigator();
 
 // function CustomHeader({ navigation }) {
@@ -120,12 +121,14 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="Login">
       <Stack.Screen 
   name="Home" 
   component={HomeScreen} 
   options={{ headerShown: false }} 
 />
+<Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="HeartDiseaseTest" component={HeartDiseaseTestScreen} />
         <Stack.Screen name="SymptomChecker" component={SymptomChecker} />
