@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -12,8 +13,8 @@ const router = express.Router();
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: 'vishal-kaira',
-  api_key: '929777551335636',
-  api_secret: 'MQlHxg3iN4IP0djJVK57aCqSFkc' // Replace with actual secret
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET// Replace with actual secret
 });
 
 // Set up multer for image uploads
