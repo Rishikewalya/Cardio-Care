@@ -8,8 +8,9 @@ const Record = require('../models/Record');
 // Endpoint for prediction
 router.post('/', (req, res) => {
     const inputData = req.body;
-
+ 
     // Validate input data
+    console.log(inputData,"input validate")
     const requiredFields = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal'];
     for (const field of requiredFields) {
         if (!(field in inputData)) {
@@ -19,17 +20,35 @@ router.post('/', (req, res) => {
 
     // Call Python script for prediction
     const pythonProcess = spawn('python', ['predictor.py', JSON.stringify(inputData)]);
+    let predictionResult = '';
+    let errorOccurred = false;
 
     pythonProcess.stdout.on('data', (data) => {
-        const predictionResult = JSON.parse(data);
-        res.json(predictionResult);
+        predictionResult += data.toString(); // Accumulate the output data
     });
 
     pythonProcess.stderr.on('data', (error) => {
+        errorOccurred = true; // Mark that an error occurred
         console.error(`Error: ${error}`);
-        res.status(500).json({ error: 'An error occurred while predicting.' });
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'An error occurred while predicting.' });
+        }
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (!errorOccurred && !res.headersSent) {
+            try {
+                // Parse the accumulated prediction result and send it
+                const result = JSON.parse(predictionResult);
+                res.json(result);
+            } catch (parseError) {
+                console.error(`Parsing Error: ${parseError}`);
+                res.status(500).json({ error: 'Error parsing prediction result.' });
+            }
+        }
     });
 });
+
 router.post('/addRecord', async (req, res) => {
     const { riskPrediction, probability,treatment,uniqueId } = req.body;
     const record = new Record({riskPrediction, probability,treatment,uniqueId });

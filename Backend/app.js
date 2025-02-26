@@ -3,8 +3,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const predictorRoutes = require('./routes/predictor');
+const ocrRoutes = require('./routes/ocr');
 const authRoutes = require('./routes/auth');  // New Auth routes
-
+const connectRoutes=require('./routes/connection')
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -19,8 +20,9 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Routes
 app.use('/api/predict', predictorRoutes);
+app.use('/api/con', connectRoutes);
 app.use('/api/auth', authRoutes);  // New Auth route
-
+app.use('/api/ocr', ocrRoutes);  // New Auth route
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

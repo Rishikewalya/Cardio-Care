@@ -16,7 +16,7 @@ const TestHistory = () => {
             const uniqueId = userData._id; // Retrieve the _id
                 console.log(uniqueId)
                 if (uniqueId) {
-                    const response = await axios.post('http://192.168.1.3:5000/api/predict/getRecord', { uniqueId });
+                    const response = await axios.post('http://192.168.1.4:5000/api/predict/getRecord', { uniqueId });
                     if (response.data.success) {
                         setRecords(response.data.record);
                     } else {

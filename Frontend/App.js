@@ -12,6 +12,12 @@ import HeartTips from './HeartTips';
 import RiskAssessment from './RiskAssessment';
 import LoginScreen from './LoginScreen';
 import SignupScreen from './SignupScreen';
+import UserList from './UserList';
+import PendingRequests from './PendingRequests';
+import ApprovedConnections from './ApprovedConnections';
+import ConnectionDashboard from './ConnectionDashboard';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import OCRScreen from './OCRScreen';
 const Stack = createNativeStackNavigator();
 
 // function CustomHeader({ navigation }) {
@@ -120,6 +126,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
       <Stack.Screen 
@@ -135,8 +142,13 @@ export default function App() {
         <Stack.Screen name="TestHistory" component={TestHistory} />
         <Stack.Screen name="HeartTips" component={HeartTips} />
         <Stack.Screen name="RiskAssessment" component={RiskAssessment} />
+        <Stack.Screen name="UserList" component={UserList} />
+        <Stack.Screen name="PendingRequests" component={PendingRequests} />
+        <Stack.Screen name="ApprovedConnections" component={ApprovedConnections} />
+    <Stack.Screen name="ConnectionDashboard" component={ConnectionDashboard} />
       </Stack.Navigator>
     </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 

@@ -3,7 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image 
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient'; 
 import heart_logo from "./Heart_logo_3.png";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 function CustomHeader({ navigation, searchTerm, onSearch }) {
   return (
     <LinearGradient 
@@ -36,6 +37,18 @@ function CustomHeader({ navigation, searchTerm, onSearch }) {
 }
 
 function BottomNavbar() {
+  const navigation = useNavigation(); // Access navigation object
+
+  const handleLogout = async () => {
+    try {
+      // Clear user session
+      await AsyncStorage.removeItem('userToken');
+      // Navigate to the login screen
+      navigation.replace('Login'); // Ensure 'Login' is defined in your navigator
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
   return (
     <View style={styles.navbar}>
       <TouchableOpacity style={styles.navItem}>
@@ -46,17 +59,17 @@ function BottomNavbar() {
         <Icon name="bell" type="font-awesome" size={28} color="#FF6F61" />
         <Text style={styles.navText}>Notifications</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.navItem}>
-        <Icon name="cog" type="font-awesome" size={28} color="#FF6F61" />
-        <Text style={styles.navText}>Settings</Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
+  
 }
 
 function HomeScreen({ navigation }) {
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [currentUser,setCurrentUser]=useState();
   const features = [
     { title: 'Symptom Checker', description: 'Check for common symptoms like chest pain, fatigue, or shortness of breath.' },
     { title: 'Test History', description: 'View your past test results to track your heart health progress over time.' },
@@ -67,6 +80,63 @@ function HomeScreen({ navigation }) {
   const filteredFeatures = features.filter(feature => 
     feature.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const navigateToUserList = async () => {
+    try {
+      // Fetch the current user's data from AsyncStorage
+      const userDataString = await AsyncStorage.getItem("currentUser");
+      const userData = JSON.parse(userDataString);
+      setCurrentUser(userData)
+      if (userData && userData.role) {
+        const { role, userId } = userData;
+        console.log("homescreen",role)
+        // Navigate to the UserList screen with role and userId as parameters
+        navigation.navigate("UserList", {
+          role: role === "doctor" ? "patient" : "doctor",
+          userId: userId, // Pass the logged-in user's ID
+        });
+      } else {
+        alert("User data not found. Please log in again.");
+      }
+    } catch (error) {
+      console.error("Error retrieving user data:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+  const handlePendingRequest = async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem("currentUser");
+      const userData = JSON.parse(userDataString);
+      console.log("handlingrequest",userData._id)
+      if (userData && userData.role === "doctor") {
+        navigation.navigate("PendingRequests", { doctorId: userData._id });
+      } else {
+        navigation.navigate("SymptomChecker");
+      }
+    } catch (error) {
+      console.error("Error handling navigation:", error);
+      Alert.alert("Error", "Unable to navigate. Please try again.");
+    }
+  };
+  const handleApprovedConnections = async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem("currentUser");
+      const userData = JSON.parse(userDataString);
+  
+      if (userData && userData.role) {
+        const userId=userData._id
+        console.log("Navigating to Approved Connections for:", userId);
+  
+        // Navigate to the Approved Connections screen with necessary parameters
+        navigation.navigate("ApprovedConnections", { userId,userType: userData.role});
+      } else {
+        alert("User data not found. Please log in again.");
+      }
+    } catch (error) {
+      console.error("Error retrieving approved connections:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -76,16 +146,37 @@ function HomeScreen({ navigation }) {
         onSearch={setSearchTerm} 
       />
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.buttonTest} onPress={() => navigation.navigate('HeartDiseaseTest')}>
-            <Icon name="heartbeat" type="font-awesome" size={20} color="#FF6F61" />
-            <Text style={styles.buttonText}>Heart Disease Test</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonConsult}>
-            <Icon name="stethoscope" type="font-awesome" size={20} color="#1E90FF" />
-            <Text style={styles.buttonText}>Consult Doctor</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.rowContainer}>
+  <View style={styles.buttonWrapper}>
+    <TouchableOpacity style={styles.buttonTest} onPress={() => navigation.navigate('HeartDiseaseTest')}>
+      <Icon name="heartbeat" type="font-awesome" size={20} color="white" />
+      <Text style={styles.buttonText}>Heart Disease Test</Text>
+    </TouchableOpacity>
+  </View>
+  <View style={styles.buttonWrapper}>
+    <TouchableOpacity style={styles.buttonConsult} onPress={navigateToUserList}>
+      <Icon name="heartbeat" type="font-awesome" size={20} color="white" />
+      <Text style={styles.buttonText}>
+      List of {currentUser ? (currentUser.role === 'doctor' ? 'patient' : 'doctor') : 'user'}
+    </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+    <View style={styles.rowContainer}>
+      <View style={styles.buttonWrapper}>
+        <TouchableOpacity style={styles.buttonTest} onPress={handlePendingRequest}>
+        <Icon name="check-circle" type="font-awesome" size={20} color="white" />
+          <Text style={styles.featureButtonText}>Pending Request user</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonWrapper}>
+        <TouchableOpacity style={styles.buttonTest} onPress={handleApprovedConnections}>
+        <Icon name="check-circle" type="font-awesome" size={20} color="white" />
+          <Text style={styles.featureButtonText}>Connections</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+
 
         {filteredFeatures.map((feature, index) => (
           <View key={index}>
@@ -127,6 +218,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f4f4f4', // Light background for contrast with orange
   },
+  rowContainer: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20 },
+    logoutButton: {
+      // marginTop: 20,
+      backgroundColor: '#FF6F61',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+    },
+    logoutText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+  
   scrollContainer: {
     flex: 1,
   },
@@ -171,30 +276,32 @@ const styles = StyleSheet.create({
   },
   buttonTest: {
     flexDirection: 'row',
-    // backgroundColor: '#FF6F61',
+    backgroundColor: '#FF6F61',
     borderColor:"#FF6F61",
     borderWidth:1,
     borderStyle:"solid",
     padding: 15,
+    color:"white",
     borderRadius: 10,
+    justifyContent: 'space-between',
     alignItems: 'center',
     flex: 1,
     marginRight: 10,
   },
   buttonConsult: {
     flexDirection: 'row',
-    // backgroundColor: '#1E90FF',
+    backgroundColor: '#FF6F61',
     padding: 15,
-    color:"black",
+    color:"white",
     borderWidth:1,
     borderStyle:"solid",
-    borderColor:"#1E90FF",
+    borderColor:"#FF6F61",
     borderRadius: 10,
     alignItems: 'center',
     flex: 1,
   },
   buttonText: {
-    color: 'black',
+    color: 'white',
     fontWeight: 'bold',
     marginLeft: 10,
     fontSize: 16,
@@ -222,7 +329,7 @@ const styles = StyleSheet.create({
   },
   featureButton: {
     marginTop: 10,
-    // backgroundColor: '#FF6F61',
+    backgroundColor: '#FF6F61',
     borderWidth:1,
     borderStyle:"solid",
     borderColor:"#FF6F61",
@@ -230,8 +337,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   featureButtonText: {
-    color: 'black',
+    color: 'white',
     textAlign: 'center',
+    marginLeft:5,
     fontWeight: 'bold',
   },
   navbar: {
