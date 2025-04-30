@@ -1,1 +1,3 @@
 # Cardio-Care
+CardioCare is an AI-powered healthcare application designed for risk prediction of cardiovascular diseases using a blend of machine learning, deep learning.
+The CardioCare project demonstrates the potential of AI and machine learning in proactive cardiovascular health management. By combining predictive models with personalized treatment recommendations, the application empowers users to make informed health decisions.Through features like ECG-based detection and real-time risk assessment, CardioCare not only enhances accessibility but also promotes early intervention, potentially reducing the risk of severe heart conditions.
