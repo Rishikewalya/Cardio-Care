@@ -1,0 +1,30 @@
+{
+    "prediction": {
+        "class": "Posterior Myocardial Infarction",
+        "probability": 0.5100972056388855
+    },
+    "top_predictions": [
+        {
+            "class": "Posterior Myocardial Infarction",
+            "probability": 0.5100972056388855
+        },
+        {
+            "class": "Anterolateral Myocardial Infarction",
+            "probability": 0.5060412883758545
+        },
+        {
+            "class": "Atrial Flutter",
+            "probability": 0.5052965879440308
+        },
+        {
+            "class": "Acute Myocardial Infarction",
+            "probability": 0.5052419304847717
+        },
+        {
+            "class": "Ischemia Anterior-Septal",
+            "probability": 0.5051381587982178
+        }
+    ],
+    "imageFilename": "temp_visualization.png",
+    "path": "C:\\Users\\rishi\\Downloads\\Cardio-Care\\Backend\\routes\\uploads\\00001_lr.hea"
+}
